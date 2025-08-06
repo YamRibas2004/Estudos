@@ -1,0 +1,57 @@
+Especificação Detalhada do App de Rastreamento de Estudos
+Objetivo Geral: Este aplicativo tem como meta permitir que o usuário acompanhe suas horas de estudo diárias, semanais e mensais de forma visual e intuitiva. As metas definidas são 6 horas por dia, 12 horas por semana e 48 horas por mês. Conforme o usuário adiciona tempo de estudo, gráficos tipo “copo d’água” e barras de progresso se atualizam em tempo real, indicando o quanto da meta foi alcançado. O sistema gerencia automaticamente o histórico das últimas duas semanas e reinicia a contagem mensal no início de cada mês.
+Funcionalidades Principais
+Metas (diárias, semanais e mensais):
+Meta Diária: 6 horas de estudo por dia. Um gráfico no formato de copo d’água mostra o progresso diário de 0 até 6 horas. O copo vai enchendo proporcionalmente ao tempo inserido, mudando de vermelho (quando abaixo de 6h) para verde (ao atingir ou exceder 6h).
+Meta Semanal: 12 horas por semana. Exibida como uma barra de progresso que se preenche conforme as horas da semana são acumuladas. A barra pode ficar vermelha enquanto a meta não está completa e verde quando atinge 12h semanais.
+Meta Mensal: 48 horas por mês. Também representada por um gráfico (por exemplo, outro copo ou indicador) que enche proporcionalmente até 48h. Ao fim de cada mês, esta contagem é zerada automaticamente para o novo mês.
+Botão “+30 Minutos”:
+Ao clicar, adiciona 30 minutos ao tempo total do dia atual. Cada clique incrementa mais 30 minutos, sem limite estabelecido (pode ultrapassar 6h diárias).
+Atualiza imediatamente todas as exibições: o valor numérico do tempo do dia (por exemplo, de “60min” para “1h”), o gráfico diário de copo d’água, a barra semanal e o total mensal.
+Formata o tempo dinamicamente em linguagem amigável. Exemplo: 60 minutos serão mostrados como “1h” (ou “1 hora”), 90 minutos como “1h30”, 120 minutos como “2h”, etc., usando uma função interna (ex: formatarTempo).
+Botão “Criar Semana”:
+Inicia uma nova semana de estudo. Geralmente usado para começar o primeiro período de monitoramento ou reiniciar manualmente o ciclo semanal.
+Ao ser acionado, registra a semana anterior no histórico (se existir) e zera os contadores diários e semanais para começar do zero. Exemplo: se o usuário estava na “Semana 1” e clica em “Criar Semana”, o aplicativo passa para “Semana 2”, armazena os dados da Semana 1 no histórico, e reinicia os contadores diários.
+Atualiza a numeração de semana automaticamente de forma contínua (isto é, não reinicia a contagem; após “Semana 1” vem “Semana 2”, “Semana 3” etc.).
+Botão “Próxima Semana”:
+Alternativa para avançar para a próxima semana de estudos após concluir a atual. Funciona de modo semelhante a “Criar Semana”, incrementando o número da semana e salvando a anterior no histórico.
+Serve para facilitar a passagem de semanas em sequência (por exemplo, após terminar “Semana 2”, o usuário clica em “Próxima Semana” para iniciar a “Semana 3”).
+Gráficos e Indicadores Visuais:
+Copo d’Água Diário: Preenchimento de 0 a 6 horas por dia. Conforme o usuário adiciona tempo, o copo enche proporcionalmente (100% cheio = 6h). Enquanto o total do dia for menor que 6h, o copo permanece vermelho. Ao atingir 6h ou mais, o copo fica verde, sinalizando que a meta diária foi batida. Se o usuário inserir mais que 6h, o copo continua cheio (verde) e o valor exibido mostra o total acumulado (ex: “7h”).
+Gráfico Mensal (tipo Copo): Similar ao diário, porém acumulando todas as horas no mês. Enche de 0 a 48h. Fica vermelho enquanto o total do mês for inferior a 48h e fica verde ao atingir pelo menos 48h mensais. No primeiro dia de um novo mês o contador é zerado automaticamente (reset mensal), começando tudo de novo em 0h para o novo mês.
+Barra Semanal de Progresso: Uma barra horizontal ou vertical que representa as horas estudadas da semana atual (0 a 12h). Ela se preenche à medida que o usuário soma horas na semana. A cor também pode indicar progresso (por exemplo, vermelho até 12h e verde ao atingir 12h semanais).
+Gerenciamento Automático de Semanas (Histórico):
+O app mantém registro resumido das últimas 2 semanas concluídas. Cada semana do histórico aparece listada como “Semana X: Yh” (por exemplo, “Semana 3: 12h”, onde Yh é o total de horas estudadas naquela semana).
+Quando o usuário inicia uma nova semana e já existem 2 semanas registradas, o aplicativo remove automaticamente a semana mais antiga para manter apenas as 2 mais recentes. Por exemplo, se o histórico já tem “Semana 4” e “Semana 5” e o usuário criar a “Semana 6”, a “Semana 4” é excluída e o histórico passa a conter apenas as semanas 5 e 6. A numeração das semanas continua subindo (não retorna a contagem), garantindo continuidade (“Semana 1, 2, 3…”).
+Interface do Usuário (UI)
+Layout em 3 Colunas (Responsivo): A tela principal é dividida em três áreas verticais:
+Coluna de Metas e Gráficos: Exibe os gráficos de copos d’água (diário e mensal) e a barra de progresso semanal. Essa coluna mostra as metas atuais e o quanto foi atingido.
+Coluna de Controles: Contém os botões de ação: “+30 Minutos”, “Criar Semana” e “Próxima Semana”. Cada botão está claramente rotulado e posicionado para fácil acesso.
+Coluna de Histórico: Mostra a lista resumida das semanas anteriores (até duas). Cada item do histórico indica o número da semana e o total de horas acumuladas (ex.: “Semana 5: 14h”).
+Design Visual:
+Estilo Minimalista: A interface deve ser limpa, com poucos elementos redundantes. Ícones simples (como um copo d’água para os gráficos) podem ser usados para facilitar o entendimento, mas sem poluição visual.
+Cores Intuitivas: Use cores que reforcem o significado das metas. Por exemplo, tons de vermelho (alerta/meta não atingida) e verde (meta atingida) nos gráficos de copos e barras. Os botões podem ter cores neutras ou de destaque suave.
+Responsividade: O layout deve adaptar-se a diferentes tamanhos de tela (desktop, tablet, mobile). Em telas pequenas, as três colunas podem se empilhar verticalmente ou ser redimensionadas para manter tudo legível. Pode-se usar CSS flexível ou grades para isso.
+Lógica de Tempo e Cálculos
+Armazenamento em Minutos: Internamente, todas as durações de estudo são convertidas e armazenadas em minutos. Isso simplifica somas e comparações. Por exemplo, 6 horas diárias equivalem a 360 minutos, 12 horas semanais a 720 minutos, 48 horas mensais a 2880 minutos.
+Incremento +30 Min: Cada vez que o usuário clica em “+30 Minutos”, o app adiciona 30 ao total de minutos do dia atual (e consequentemente aos totais semanais/mensais). Não há limite máximo definido; o usuário pode ultrapassar as metas, mas as metas servem apenas como referência de preenchimento.
+Formatação de Tempo (função formatarTempo): Após cada atualização, os minutos totais são convertidos para um formato legível:
+Se o total do dia for, por exemplo, 90 minutos, a função exibe “1h30”.
+Para 60 minutos, mostra “1h” (ou “1 hora”), para 150 minutos “2h30”, e assim por diante.
+Essa formatação facilita a leitura, evitando mostrar apenas minutos.
+Atualização de Gráficos: Depois de cada clique ou alteração de tempo, o aplicativo recalcula as porcentagens dos gráficos. Por exemplo, para o copo diário:
+- Percentual diário = (minutos estudados no dia / 360) × 100%.
+- Se ultrapassar 360 minutos (6h), o percentual fica em 100% (copo cheio).
+Cores são definidas: se minutos ≥ 360, o copo fica verde; caso contrário, fica vermelho.
+Analogamente para a barra semanal:
+- Percentual semanal = (minutos semanais / 720) × 100%.
+A barra exibe proporcionalmente o progresso em direção às 12h.
+Reset Mensal: Quando o mês corrente muda (ou seja, no primeiro dia do próximo mês), o aplicativo detecta essa mudança e zera automaticamente o total acumulado no mês anterior. Assim, um novo ciclo mensal começa em 0h. Os gráficos de metas diárias/semanais continuam normalmente, mas o contador mensal volta a zero e passa a contar para o novo mês.
+Exemplos de Fluxo de Uso
+Início do aplicativo: O usuário clica em “Criar Semana” para começar. O aplicativo configura “Semana 1” com contadores zerados.
+Registrando Estudos Diários: A cada sessão de estudo, o usuário clica em “+30 Minutos” repetidamente. Se clicar 3 vezes em um dia, terá somado 90 minutos (exibido como “1h30”). O copo diário começa vazio e vai enchendo a cada clique (30min, 1h, 1h30). Se atingir 6h (12 cliques), o copo fica verde e cheio. A barra semanal também avança conforme esses minutos se acumulam na semana.
+Mudança de Dia: No dia seguinte, o contador diário recomeça em 0. (Nota: o app pode, por exemplo, zerar o total diário automaticamente após meia-noite.) A barra semanal mantém o histórico da semana corrente.
+Final da Semana: Ao concluir a semana (por exemplo, no domingo ou quando atingir a meta semanal), o usuário clica em “Próxima Semana” para iniciar a semana seguinte. Isso salva o total da Semana 1 no histórico (“Semana 1: Xh”), zera os contadores diários e semanais, e cria a “Semana 2”.
+Histórico de Semanas: Após criar várias semanas, a coluna de histórico lista “Semana 1: Xh”, “Semana 2: Yh”, etc. Se já existirem 2 semanas no histórico e o usuário iniciar outra (Semana 3), a “Semana 1” é excluída automaticamente, mantendo apenas semanas 2 e 3 no registro.
+Início de Mês: Se durante o uso passar para um novo mês, o total mensal anterior some e começa do zero. Por exemplo, se no dia 30 de abril o usuário tinha acumulado 20h no mês, no dia 1º de maio o total mensal mostrará “0h” novamente, e o copo mensal começará vazio para as horas de maio.
+Este detalhamento cobre cada botão, gráfico e lógica essencial do aplicativo. Cada função (cada clique, cada opção) foi planejada para que o usuário possa facilmente monitorar o progresso de estudos em várias escalas de tempo, com feedback visual claro (cores e preenchimento) e gerenciamento automático do histórico e resets mensais.

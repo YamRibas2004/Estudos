@@ -1,0 +1,75 @@
+🔴 1. Progresso da Semana Atual (Coluna Esquerda)
+🧩 Problemas:
+
+O copo semanal está vazio sem contorno ou indicação visual clara de progresso (falta o gráfico de "copo de água" de verdade, com preenchimento e cor).
+
+Falta troca de cor do copo (de vermelho para verde ao atingir 12h).
+
+O texto mostra "0min / 12h", mas não há barra ou preenchimento gráfico proporcional que indique progresso visual.
+
+🔵 2. Controles de Semana (Coluna Inferior Esquerda)
+🧩 Problemas:
+
+O botão "+30 minutos" não mostra se a adição de tempo está funcionando em tempo real (a UI permanece igual).
+
+Não há indicação se o tempo foi adicionado ao dia correto (não atualiza “Seg”, por exemplo).
+
+Botão “Nova Semana” está presente, mas não está claro se a numeração contínua está sendo aplicada corretamente (precisa mostrar algo como "Semana 2", "Semana 3" etc. conforme avançar).
+
+Botão “Limpar Dados” não foi pedido, e não há botão “Próxima Semana”, que foi solicitado no prompt.
+
+🟡 3. Cronograma Semanal (Coluna Central)
+🧩 Problemas:
+
+Mostra "Semana 1", mas não está claro se a criação de novas semanas está funcionando corretamente (faltou um botão visual ou forma de “avançar” manualmente como solicitado).
+
+Dias da semana (Seg a Dom) mostram "0min", mas isso deveria mudar automaticamente com cliques em "+30min" no dia atual (não está atualizando?).
+
+Os pontos vermelhos ao lado dos dias da semana não foram especificados no prompt — não está claro o que significam. Isso pode confundir o usuário.
+
+🟣 4. Progresso Diário / Gráfico de Copos (Coluna Direita)
+🧩 Problemas:
+
+O gráfico de copo diário está presente, mas não é interativo nem muda de cor (vermelho/verde) conforme a meta do dia é atingida.
+
+Exibe “Meta mensal: 5 horas totais” — isso está incorreto. A meta mensal correta é 48h (como especificado no prompt).
+
+Progresso atual do mês está como “0.0h”, mas deveria ser atualizado conforme o usuário clica em +30min.
+
+Legenda com bolinhas “Meta do Mês Atingida / Incompleta” está correta, mas não tem efeito visual perceptível no gráfico.
+
+🟤 5. Resumo das Semanas
+🧩 Problemas:
+
+Exibe: “Nenhuma semana concluída ainda”, mas não está claro quando uma semana é “concluída”.
+
+“Total de agosto: 0min / 48h” está tecnicamente certo, mas deveria atualizar em tempo real com o botão "+30min".
+
+Não há uma lista visível das últimas 2 semanas concluídas (ex: "Semana 2: 10h", "Semana 3: 14h") como você solicitou.
+
+🔧 6. Lógica e Funções Internas (inferido pela interface)
+🧩 Problemas potenciais:
+
+Incremento inteligente (30min → 1h → 1h30 etc.) não parece implementado visualmente — o texto ainda mostra “0min” para todos os campos.
+
+Não está claro se a lógica de gerenciamento automático de semanas (excluir a mais antiga após 2) está funcionando.
+
+Reset mensal (zerar total no início do mês) não pode ser verificado apenas pela imagem, mas precisa ser testado.
+
+✅ Pontos que estão corretos ou quase corretos
+Elemento	Avaliação
+Layout em 3 colunas	✅ Correto
+Gráfico de copo presente (ainda que incompleto)	⚠️ Está lá, mas sem funcionalidade
+Botão "+30min" presente	✅ Visualmente, sim
+Estética minimalista com cores claras	✅ Muito bom! Design limpo
+Responsividade (aparência sugere que funciona no mobile)	✅ Provável que esteja
+
+✔️ Resumo do que precisa ser corrigido
+Categoria	Correção Necessária
+🧠 Lógica	Atualizar dados corretamente após "+30min", salvar por dia, atualizar semana/mês
+🎯 Metas	Corrigir metas (mensal deve ser 48h)
+📊 Gráficos	Copos devem encher, mudar de cor e refletir os dados de tempo
+🗓️ Semanas	Adicionar botão "Próxima Semana", numerar corretamente e excluir mais antiga após 2
+📝 Histórico	Mostrar últimas 2 semanas com horas estudadas
+💬 Formatação	Usar “1h30”, “2h”, “45min” etc. via função formatarTempo()
+📅 Reset Mensal	Implementar e testar
