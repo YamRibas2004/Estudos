@@ -155,6 +155,23 @@ export function useStudyTracker() {
     nextWeek();
   }, [nextWeek]);
 
+  const resetAllWeeks = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      currentWeek: 1,
+      weeklyMinutes: {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0,
+        sunday: 0,
+      },
+      weekHistory: [],
+    }));
+  }, []);
+
   const getCurrentMonth = useCallback((): string => {
     const monthNames = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -182,6 +199,7 @@ export function useStudyTracker() {
     addTime,
     nextWeek,
     createNewWeek,
+    resetAllWeeks,
     getCurrentMonth,
     getDayProgress,
     getWeeklyProgress,

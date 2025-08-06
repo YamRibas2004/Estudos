@@ -12,6 +12,7 @@ export default function StudyTracker() {
     addTime,
     nextWeek,
     createNewWeek,
+    resetAllWeeks,
     getCurrentMonth,
     getDayProgress,
     getWeeklyProgress,
@@ -102,6 +103,13 @@ export default function StudyTracker() {
                   >
                     Nova Semana
                   </Button>
+                  <Button 
+                    onClick={resetAllWeeks}
+                    variant="destructive"
+                    className="w-full font-medium py-3"
+                  >
+                    Resetar Todas as Semanas
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -111,9 +119,18 @@ export default function StudyTracker() {
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Cronograma Semanal</h3>
-              <div className="bg-blue-50 rounded-lg p-3 mb-4 text-center">
-                <div className="bg-[var(--study-blue)] text-white text-sm font-medium px-3 py-1 rounded-full inline-block">
-                  Semana {state.currentWeek}
+              <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                <div className="flex justify-center items-center gap-2">
+                  {/* Previous Week */}
+                  {state.currentWeek > 1 && (
+                    <div className="bg-gray-300 text-gray-600 text-sm font-medium px-3 py-1 rounded-full">
+                      Semana {state.currentWeek - 1}
+                    </div>
+                  )}
+                  {/* Current Week */}
+                  <div className="bg-[var(--study-blue)] text-white text-sm font-medium px-3 py-1 rounded-full">
+                    Semana {state.currentWeek}
+                  </div>
                 </div>
               </div>
 
