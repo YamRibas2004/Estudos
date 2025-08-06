@@ -13,6 +13,7 @@ export default function StudyTracker() {
     nextWeek,
     createNewWeek,
     resetAllWeeks,
+    switchToWeek,
     getCurrentMonth,
     getDayProgress,
     getWeeklyProgress,
@@ -108,7 +109,7 @@ export default function StudyTracker() {
                     variant="destructive"
                     className="w-full font-medium py-3"
                   >
-                    Resetar Todas as Semanas
+                    Resetar
                   </Button>
                 </div>
               </CardContent>
@@ -123,14 +124,40 @@ export default function StudyTracker() {
                 <div className="flex justify-center items-center gap-2">
                   {/* Previous Week */}
                   {state.currentWeek > 1 && (
-                    <div className="bg-gray-300 text-gray-600 text-sm font-medium px-3 py-1 rounded-full">
+                    <button
+                      onClick={() => switchToWeek(state.currentWeek - 1)}
+                      disabled={state.viewingWeek === state.currentWeek - 1}
+                      className={`text-sm font-medium px-3 py-1 rounded-full transition-colors ${
+                        state.viewingWeek === state.currentWeek - 1
+                          ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                          : 'bg-gray-300 text-gray-600 hover:bg-gray-400 hover:text-white cursor-pointer'
+                      }`}
+                    >
                       Semana {state.currentWeek - 1}
-                    </div>
+                    </button>
                   )}
                   {/* Current Week */}
-                  <div className="bg-[var(--study-blue)] text-white text-sm font-medium px-3 py-1 rounded-full">
+                  <button
+                    onClick={() => switchToWeek(state.currentWeek)}
+                    disabled={state.viewingWeek === state.currentWeek}
+                    className={`text-sm font-medium px-3 py-1 rounded-full transition-colors ${
+                      state.viewingWeek === state.currentWeek
+                        ? 'bg-[var(--study-blue)] text-white cursor-not-allowed'
+                        : 'bg-blue-300 text-blue-800 hover:bg-[var(--study-blue)] hover:text-white cursor-pointer'
+                    }`}
+                  >
                     Semana {state.currentWeek}
-                  </div>
+                  </button>
+                </div>
+                
+                {/* Viewing Indicator */}
+                <div className="text-center mt-2">
+                  <span className="text-xs text-gray-600">
+                    {state.viewingWeek === state.currentWeek 
+                      ? 'Visualizando semana atual' 
+                      : `Visualizando Semana ${state.viewingWeek}`
+                    }
+                  </span>
                 </div>
               </div>
 
@@ -150,7 +177,12 @@ export default function StudyTracker() {
                       </div>
                       <Button
                         onClick={() => addTime(key)}
-                        className="btn-add-time bg-[var(--study-blue)] hover:bg-[var(--study-blue)]/90 text-white text-sm font-medium px-3 py-1 h-auto"
+                        disabled={state.viewingWeek !== state.currentWeek}
+                        className={`btn-add-time text-sm font-medium px-3 py-1 h-auto ${
+                          state.viewingWeek !== state.currentWeek
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-[var(--study-blue)] hover:bg-[var(--study-blue)]/90 text-white'
+                        }`}
                       >
                         +30min
                       </Button>

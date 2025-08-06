@@ -18,10 +18,12 @@ interface WeekHistory {
 
 interface StudyTrackerState {
   currentWeek: number;
+  viewingWeek: number;
   weeklyMinutes: WeeklyMinutes;
   weekHistory: WeekHistory[];
   monthlyMinutes: number;
   lastResetMonth: number;
+  weekData: { [weekNumber: number]: WeeklyMinutes };
 }
 
 const DAILY_GOAL_MINUTES = 360; // 6 hours
@@ -30,6 +32,7 @@ const MONTHLY_GOAL_MINUTES = 2880; // 48 hours
 
 const initialState: StudyTrackerState = {
   currentWeek: 1,
+  viewingWeek: 1,
   weeklyMinutes: {
     monday: 0,
     tuesday: 0,
@@ -42,6 +45,17 @@ const initialState: StudyTrackerState = {
   weekHistory: [],
   monthlyMinutes: 0,
   lastResetMonth: new Date().getMonth(),
+  weekData: {
+    1: {
+      monday: 0,
+      tuesday: 0,
+      wednesday: 0,
+      thursday: 0,
+      friday: 0,
+      saturday: 0,
+      sunday: 0,
+    }
+  },
 };
 
 export function useStudyTracker() {
@@ -53,14 +67,19 @@ export function useStudyTracker() {
           const parsedState = JSON.parse(saved);
           // Check if we need to reset for a new month
           const currentMonth = new Date().getMonth();
+          const updatedState = {
+            ...parsedState,
+            viewingWeek: parsedState.viewingWeek || parsedState.currentWeek,
+            weekData: parsedState.weekData || { [parsedState.currentWeek]: parsedState.weeklyMinutes },
+          };
           if (parsedState.lastResetMonth !== currentMonth) {
             return {
-              ...parsedState,
+              ...updatedState,
               monthlyMinutes: 0,
               lastResetMonth: currentMonth,
             };
           }
-          return parsedState;
+          return updatedState;
         } catch {
           return initialState;
         }
@@ -109,14 +128,29 @@ export function useStudyTracker() {
   }, [state.weeklyMinutes]);
 
   const addTime = useCallback((day: keyof WeeklyMinutes) => {
-    setState(prev => ({
-      ...prev,
-      weeklyMinutes: {
+    setState(prev => {
+      // Only allow adding time to current week
+      if (prev.viewingWeek !== prev.currentWeek) {
+        return prev;
+      }
+      
+      const updatedWeeklyMinutes = {
         ...prev.weeklyMinutes,
         [day]: prev.weeklyMinutes[day] + 30,
-      },
-      monthlyMinutes: prev.monthlyMinutes + 30,
-    }));
+      };
+      
+      const updatedWeekData = {
+        ...prev.weekData,
+        [prev.currentWeek]: updatedWeeklyMinutes,
+      };
+      
+      return {
+        ...prev,
+        weeklyMinutes: updatedWeeklyMinutes,
+        weekData: updatedWeekData,
+        monthlyMinutes: prev.monthlyMinutes + 30,
+      };
+    });
   }, []);
 
   const nextWeek = useCallback(() => {
@@ -134,17 +168,25 @@ export function useStudyTracker() {
         newHistory.pop();
       }
 
+      const newWeekNumber = prev.currentWeek + 1;
+      const newWeeklyMinutes = {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0,
+        sunday: 0,
+      };
+
       return {
         ...prev,
-        currentWeek: prev.currentWeek + 1,
-        weeklyMinutes: {
-          monday: 0,
-          tuesday: 0,
-          wednesday: 0,
-          thursday: 0,
-          friday: 0,
-          saturday: 0,
-          sunday: 0,
+        currentWeek: newWeekNumber,
+        viewingWeek: newWeekNumber,
+        weeklyMinutes: newWeeklyMinutes,
+        weekData: {
+          ...prev.weekData,
+          [newWeekNumber]: newWeeklyMinutes,
         },
         weekHistory: newHistory,
       };
@@ -156,10 +198,32 @@ export function useStudyTracker() {
   }, [nextWeek]);
 
   const resetAllWeeks = useCallback(() => {
+    const resetWeekMinutes = {
+      monday: 0,
+      tuesday: 0,
+      wednesday: 0,
+      thursday: 0,
+      friday: 0,
+      saturday: 0,
+      sunday: 0,
+    };
+    
     setState(prev => ({
       ...prev,
       currentWeek: 1,
-      weeklyMinutes: {
+      viewingWeek: 1,
+      weeklyMinutes: resetWeekMinutes,
+      weekHistory: [],
+      monthlyMinutes: 0,
+      weekData: {
+        1: resetWeekMinutes,
+      },
+    }));
+  }, []);
+
+  const switchToWeek = useCallback((weekNumber: number) => {
+    setState(prev => {
+      const weekData = prev.weekData[weekNumber] || {
         monday: 0,
         tuesday: 0,
         wednesday: 0,
@@ -167,9 +231,14 @@ export function useStudyTracker() {
         friday: 0,
         saturday: 0,
         sunday: 0,
-      },
-      weekHistory: [],
-    }));
+      };
+      
+      return {
+        ...prev,
+        viewingWeek: weekNumber,
+        weeklyMinutes: weekData,
+      };
+    });
   }, []);
 
   const getCurrentMonth = useCallback((): string => {
@@ -200,6 +269,7 @@ export function useStudyTracker() {
     nextWeek,
     createNewWeek,
     resetAllWeeks,
+    switchToWeek,
     getCurrentMonth,
     getDayProgress,
     getWeeklyProgress,
