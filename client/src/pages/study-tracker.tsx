@@ -177,12 +177,7 @@ export default function StudyTracker() {
                       </div>
                       <Button
                         onClick={() => addTime(key)}
-                        disabled={state.viewingWeek !== state.currentWeek}
-                        className={`btn-add-time text-sm font-medium px-3 py-1 h-auto ${
-                          state.viewingWeek !== state.currentWeek
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-[var(--study-blue)] hover:bg-[var(--study-blue)]/90 text-white'
-                        }`}
+                        className="btn-add-time bg-[var(--study-blue)] hover:bg-[var(--study-blue)]/90 text-white text-sm font-medium px-3 py-1 h-auto"
                       >
                         +30min
                       </Button>

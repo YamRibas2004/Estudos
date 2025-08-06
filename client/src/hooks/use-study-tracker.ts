@@ -129,8 +129,8 @@ export function useStudyTracker() {
 
   const addTime = useCallback((day: keyof WeeklyMinutes) => {
     setState(prev => {
-      // Only allow adding time to current week
-      if (prev.viewingWeek !== prev.currentWeek) {
+      // Allow adding time to current and previous weeks only
+      if (prev.viewingWeek > prev.currentWeek || prev.viewingWeek < prev.currentWeek - 1) {
         return prev;
       }
       
@@ -141,7 +141,7 @@ export function useStudyTracker() {
       
       const updatedWeekData = {
         ...prev.weekData,
-        [prev.currentWeek]: updatedWeeklyMinutes,
+        [prev.viewingWeek]: updatedWeeklyMinutes,
       };
       
       return {
