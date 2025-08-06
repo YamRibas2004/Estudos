@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreador de Estudos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'study-blue': '#2196F3',
+                    'study-green': '#4CAF50',
+                    'study-red': '#F44336',
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        .glass-cup {
+            position: relative;
+            width: 60px;
+            height: 80px;
+            border: 3px solid #ddd;
+            border-radius: 0 0 30px 30px;
+            background: #f9f9f9;
+            overflow: hidden;
+        }
+        
+        .glass-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #F44336;
+            transition: height 0.3s ease, background-color 0.3s ease;
+            border-radius: 0 0 27px 27px;
+        }
+        
+        .glass-liquid.achieved {
+            background: #4CAF50;
+        }
+        
+        .daily-cup {
+            width: 40px;
+            height: 60px;
+            border: 2px solid #ddd;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .daily-cup .glass-liquid {
+            border-radius: 0 0 18px 18px;
+        }
+        
+        .btn-add-time {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-add-time:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #f3f4f6 0%, #f3f4f6 100%);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-study-blue text-white p-4 shadow-lg">
+        <div class="max-w-7xl mx-auto flex items-center gap-3">
+            <div class="bg-white p-2 rounded-lg">
+                <svg class="w-6 h-6 text-study-blue" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">Rastreador de Estudos</h1>
+                <p class="text-blue-100 text-sm">Monitore seu progresso semanal</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Column 1: Current Week Progress -->
+            <div class="space-y-6">
+                <!-- Weekly Progress -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Progresso da Semana Atual</h3>
+                    <div class="text-center mb-4">
+                        <div class="text-2xl font-bold text-gray-700" data-bind="currentWeekTime">0min</div>
+                        <div class="text-sm text-gray-500">/ 12h</div>
+                        <div class="text-xs text-gray-400 mt-1" data-bind="weekProgress">0% da meta semanal alcançada</div>
+                    </div>
+                    
+                    <!-- Weekly Glass Cup -->
+                    <div class="flex justify-center mb-4">
+                        <div class="glass-cup">
+                            <div class="glass-liquid" id="weeklyLiquid" style="height: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Goals Display -->
+                    <div class="grid grid-cols-2 gap-4 text-center bg-gray-50 rounded-lg p-4">
+                        <div>
+                            <div class="text-sm font-medium text-gray-600">Meta Semanal</div>
+                            <div class="text-lg font-bold text-study-blue">12h</div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-600">Meta Mensal</div>
+                            <div class="text-lg font-bold text-study-blue">48h</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Week Controls -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Controles de Semana</h3>
+                    <div class="space-y-3">
+                        <button onclick="nextWeek()" class="w-full bg-study-blue hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                            Próxima Semana
+                        </button>
+                        <button onclick="createNewWeek()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors">
+                            Nova Semana
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Weekly Schedule -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Cronograma Semanal</h3>
+                <div class="bg-blue-50 rounded-lg p-3 mb-4 text-center">
+                    <div class="bg-study-blue text-white text-sm font-medium px-3 py-1 rounded-full inline-block">
+                        <span data-bind="currentWeekNumber">Semana 1</span>
+                    </div>
+                </div>
+
+                <!-- @MAP: weekDays.map(day => ( -->
+                <div class="space-y-3" id="weekDays">
+                    <!-- Monday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-red rounded-full" id="statusMon"></div>
+                            <span class="font-medium text-gray-700">Seg</span>
+                            <span class="text-gray-600 text-sm" data-bind="mondayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('monday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Tuesday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-red rounded-full" id="statusTue"></div>
+                            <span class="font-medium text-gray-700">Ter</span>
+                            <span class="text-gray-600 text-sm" data-bind="tuesdayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('tuesday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Wednesday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-red rounded-full" id="statusWed"></div>
+                            <span class="font-medium text-gray-700">Qua</span>
+                            <span class="text-gray-600 text-sm" data-bind="wednesdayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('wednesday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Thursday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-red rounded-full" id="statusThu"></div>
+                            <span class="font-medium text-gray-700">Qui</span>
+                            <span class="text-gray-600 text-sm" data-bind="thursdayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('thursday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Friday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-red rounded-full" id="statusFri"></div>
+                            <span class="font-medium text-gray-700">Sex</span>
+                            <span class="text-gray-600 text-sm" data-bind="fridayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('friday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Saturday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-blue rounded-full" id="statusSat"></div>
+                            <span class="font-medium text-gray-700">Sab</span>
+                            <span class="text-gray-600 text-sm" data-bind="saturdayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('saturday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+
+                    <!-- Sunday -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-study-blue rounded-full" id="statusSun"></div>
+                            <span class="font-medium text-gray-700">Dom</span>
+                            <span class="text-gray-600 text-sm" data-bind="sundayTime" data-mock="true">0min</span>
+                        </div>
+                        <button onclick="addTime('sunday')" class="btn-add-time bg-study-blue hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md transition-all">
+                            +30min
+                        </button>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+
+            <!-- Column 3: Daily Progress & History -->
+            <div class="space-y-6">
+                <!-- Daily Progress -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Progresso Diário - <span data-bind="currentMonth">Janeiro</span></h3>
+                    <div class="text-sm text-gray-600 mb-4">
+                        Meta mensal: <span class="font-medium">48 horas totais</span> • Progresso atual: <span class="font-bold text-study-blue" data-bind="currentMonthProgress">0.0h</span>
+                    </div>
+                    
+                    <!-- Daily Cups Grid -->
+                    <div class="grid grid-cols-7 gap-2 mb-4">
+                        <!-- @MAP: daysOfWeek.map(day => ( -->
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Seg</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid" id="dailyLiquidMon" style="height: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="mondayProgress">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Ter</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid" id="dailyLiquidTue" style="height: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="tuesdayProgress">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Qua</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid" id="dailyLiquidWed" style="height: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="wednesdayProgress">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Qui</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid" id="dailyLiquidThu" style="height: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="thursdayProgress">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Sex</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid" id="dailyLiquidFri" style="height: 0%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="fridayProgress">0</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Sab</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid achieved" id="dailyLiquidSat" style="height: 60%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="saturdayProgress">4h</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 mb-2">Dom</div>
+                            <div class="daily-cup glass-cup mx-auto">
+                                <div class="glass-liquid achieved" id="dailyLiquidSun" style="height: 50%"></div>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1" data-bind="sundayProgress">3h</div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="flex justify-center gap-4 text-xs">
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 bg-study-green rounded-full"></div>
+                            <span class="text-gray-600">Meta do Mês Atingida (6h+)</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 bg-study-red rounded-full"></div>
+                            <span class="text-gray-600">Meta do Mês Incompleta (&lt;6h)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly History -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Resumo das Semanas - <span data-bind="currentMonth">Janeiro</span></h3>
+                    
+                    <!-- @STATE: weekHistory:Array = [] -->
+                    <div class="space-y-3" id="weekHistory">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-study-blue text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                    1
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-700">Semana 1</div>
+                                    <div class="text-xs text-gray-500">05/08</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold text-gray-700" data-mock="true">0min</div>
+                                <div class="text-xs text-gray-500">0% da meta</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Monthly Total -->
+                    <div class="border-t pt-4 mt-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-700">Total de Janeiro:</span>
+                            <div class="text-right">
+                                <span class="font-bold text-gray-700" data-bind="monthlyTotal" data-mock="true">0min</span>
+                                <span class="text-gray-500">/ 48h</span>
+                                <div class="text-xs text-gray-500" data-bind="monthlyProgress">0% da meta mensal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // @STATE: App state management
+        let appState = {
+            currentWeek: 1,
+            weeklyMinutes: {
+                monday: 0,
+                tuesday: 0, 
+                wednesday: 0,
+                thursday: 0,
+                friday: 0,
+                saturday: 240, // 4h demo data
+                sunday: 180    // 3h demo data
+            },
+            weekHistory: [],
+            monthlyMinutes: 0
+        };
+
+        // @FUNCTIONALITY: Time formatting function
+        function formatTime(minutes) {
+            if (minutes === 0) return '0min';
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            
+            if (hours === 0) return `${mins}min`;
+            if (mins === 0) return `${hours}h`;
+            return `${hours}h${mins}`;
+        }
+
+        // @FUNCTIONALITY: Add 30 minutes to a specific day
+        function addTime(day) {
+            appState.weeklyMinutes[day] += 30;
+            updateUI();
+            
+            // TODO: Implement persistent storage
+            console.log(`Added 30min to ${day}. New total: ${formatTime(appState.weeklyMinutes[day])}`);
+        }
+
+        // @FUNCTIONALITY: Calculate weekly total
+        function getWeeklyTotal() {
+            return Object.values(appState.weeklyMinutes).reduce((sum, minutes) => sum + minutes, 0);
+        }
+
+        // @FUNCTIONALITY: Update all UI elements
+        function updateUI() {
+            const weeklyTotal = getWeeklyTotal();
+            
+            // Update weekly progress
+            document.querySelector('[data-bind="currentWeekTime"]').textContent = formatTime(weeklyTotal);
+            document.querySelector('[data-bind="weekProgress"]').textContent = 
+                `${Math.round((weeklyTotal / 720) * 100)}% da meta semanal alcançada`;
+            
+            // Update weekly cup
+            const weeklyLiquid = document.getElementById('weeklyLiquid');
+            const weeklyPercentage = Math.min((weeklyTotal / 720) * 100, 100);
+            weeklyLiquid.style.height = `${weeklyPercentage}%`;
+            weeklyLiquid.className = weeklyPercentage >= 100 ? 'glass-liquid achieved' : 'glass-liquid';
+            
+            // Update individual days
+            Object.keys(appState.weeklyMinutes).forEach(day => {
+                const minutes = appState.weeklyMinutes[day];
+                const displayElement = document.querySelector(`[data-bind="${day}Time"]`);
+                if (displayElement) {
+                    displayElement.textContent = formatTime(minutes);
+                }
+                
+                // Update daily cups
+                const liquidElement = document.getElementById(`dailyLiquid${day.charAt(0).toUpperCase() + day.slice(1, 3)}`);
+                if (liquidElement) {
+                    const dailyPercentage = Math.min((minutes / 360) * 100, 100);
+                    liquidElement.style.height = `${dailyPercentage}%`;
+                    liquidElement.className = dailyPercentage >= 100 ? 'glass-liquid achieved' : 'glass-liquid';
+                }
+                
+                // Update progress text
+                const progressElement = document.querySelector(`[data-bind="${day}Progress"]`);
+                if (progressElement) {
+                    progressElement.textContent = formatTime(minutes);
+                }
+                
+                // Update status dots
+                const statusElement = document.getElementById(`status${day.charAt(0).toUpperCase() + day.slice(1, 3)}`);
+                if (statusElement) {
+                    statusElement.className = minutes >= 360 ? 
+                        'w-2 h-2 bg-study-green rounded-full' : 
+                        'w-2 h-2 bg-study-red rounded-full';
+                }
+            });
+            
+            // Update monthly progress
+            appState.monthlyMinutes = weeklyTotal; // Simplified for demo
+            document.querySelector('[data-bind="currentMonthProgress"]').textContent = 
+                formatTime(appState.monthlyMinutes);
+            document.querySelector('[data-bind="monthlyTotal"]').textContent = 
+                formatTime(appState.monthlyMinutes);
+            document.querySelector('[data-bind="monthlyProgress"]').textContent = 
+                `${Math.round((appState.monthlyMinutes / 2880) * 100)}% da meta mensal`;
+        }
+
+        // @FUNCTIONALITY: Advance to next week
+        function nextWeek() {
+            // Save current week to history
+            const weekTotal = getWeeklyTotal();
+            const newHistoryItem = {
+                week: appState.currentWeek,
+                minutes: weekTotal,
+                date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+            };
+            
+            appState.weekHistory.unshift(newHistoryItem);
+            
+            // Keep only last 2 weeks
+            if (appState.weekHistory.length > 2) {
+                appState.weekHistory.pop();
+            }
+            
+            // Reset for new week
+            appState.currentWeek++;
+            Object.keys(appState.weeklyMinutes).forEach(day => {
+                appState.weeklyMinutes[day] = 0;
+            });
+            
+            updateWeekDisplay();
+            updateHistoryDisplay();
+            updateUI();
+            
+            console.log(`Advanced to Week ${appState.currentWeek}`);
+        }
+
+        // @FUNCTIONALITY: Create new week (alternative to next week)
+        function createNewWeek() {
+            nextWeek(); // Same functionality for this implementation
+        }
+
+        // @FUNCTIONALITY: Update week number display
+        function updateWeekDisplay() {
+            document.querySelector('[data-bind="currentWeekNumber"]').textContent = 
+                `Semana ${appState.currentWeek}`;
+        }
+
+        // @FUNCTIONALITY: Update history display
+        function updateHistoryDisplay() {
+            const historyContainer = document.getElementById('weekHistory');
+            
+            if (appState.weekHistory.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        Nenhuma semana concluída ainda
+                    </div>
+                `;
+                return;
+            }
+            
+            historyContainer.innerHTML = appState.weekHistory.map(item => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-study-blue text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            ${item.week}
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-700">Semana ${item.week}</div>
+                            <div class="text-xs text-gray-500">${item.date}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-gray-700">${formatTime(item.minutes)}</div>
+                        <div class="text-xs text-gray-500">${Math.round((item.minutes / 720) * 100)}% da meta</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // @FUNCTIONALITY: Initialize app on load
+        (function initializeApp() {
+            // Set current month
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const currentMonth = monthNames[new Date().getMonth()];
+            document.querySelectorAll('[data-bind="currentMonth"]').forEach(el => {
+                el.textContent = currentMonth;
+            });
+            
+            // Initialize displays
+            updateWeekDisplay();
+            updateHistoryDisplay();
+            updateUI();
+            
+            console.log('Study Tracker initialized');
+        })();
+
+        // TODO: Implement automatic monthly reset functionality
+        // TODO: Implement persistent storage (localStorage or backend API)
+        // TODO: Add data export functionality
+        // TODO: Add notification system for goal achievements
+    </script>
+</body>
+</html>
